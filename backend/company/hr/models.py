@@ -15,7 +15,7 @@ class Employee(models.Model):
     phone = models.CharField(max_length=15,null=True,blank=True)
     address = models.CharField(max_length=225,null=True,blank=True)
     position = models.CharField(max_length=50,null=True,blank=True)
-    profile = models.ImageField(upload_to='employee_profile/',default='defaultprofileimage.png',null=True,blank=True)
+    profileimage = models.ImageField(upload_to='employee_profile/',default='defaultprofileimage.png',null=True,blank=True)
 
 class LeaveRequest(models.Model):
     employeeid=models.IntegerField(null=True,blank=True)

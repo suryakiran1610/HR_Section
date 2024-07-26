@@ -1,22 +1,23 @@
 import Cookies from "js-cookie";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FiBell, FiZap, FiUser, FiArrowRight } from "react-icons/fi";
-import { useEffect, useState, useRef } from "react";
+import { useContext,useEffect, useState, useRef } from "react";
 import {MdKeyboardArrowLeft,} from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
+import MakeApiRequest from "../../../Functions/AxiosApi";
+import config from "../../../Functions/config";
 import { SlCalender } from "react-icons/sl";
 import { FaTasks } from "react-icons/fa";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { FaBell } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
-import { useAdminProfileContext } from "../../../hooks/useAdminProfileContext";
 import { useAdminNotificationContext } from "../../../hooks/useAdminNotificationContext";
+import ProfileContext from "../../../context/ProfileContext";
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
-import config from "../../../Functions/config";
 
 const HRNav = () => {
-  const { profile } = useAdminProfileContext();
+  const { profile, setProfile } = useContext(ProfileContext);
   const { notificationCount, unreadNotifications, dispatch } =
     useAdminNotificationContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -92,6 +93,33 @@ const HRNav = () => {
     };
 
     fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const params = {
+      user_id:"8",
+    };
+    MakeApiRequest(
+      "get",
+      `${config.baseUrl}hr/employeeprofile/`,
+      {},
+      params,
+      {}
+    )
+      .then((response) => {
+        console.log("hrprofile", response);
+        setProfile(response);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        if (error.response && error.response.status === 401) {
+          console.log(
+            "Unauthorized access. Token might be expired or invalid."
+          );
+        } else {
+          console.error("Unexpected error occurred:", error);
+        }
+      });
   }, []);
 
   return (
@@ -184,11 +212,11 @@ const HRNav = () => {
                     type="button"
                     className="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
                   >
-                    {/* <img
+                    <img
                       className="inline-block size-[38px] rounded-full object-cover"
-                      src={`${config.baseApiImageUrl}${profile.profile}`}
-                      alt={profile.username}
-                    /> */}
+                      src={`${config.imagebaseurl}${profile.profileimage}`}
+                      alt="profile"
+                    />
                   </button>
                   <p className="text-white ml-2 mr-2">suryakiran s</p>
                   <FaAngleDown 
