@@ -2,28 +2,23 @@ import Cookies from "js-cookie";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FiBell, FiZap, FiUser, FiArrowRight } from "react-icons/fi";
 import { useEffect, useState, useRef } from "react";
-import {
-  MdOutlineDashboard,
-  MdOutlineCategory,
-  MdOutlineAttachMoney,
-  MdBusiness,
-  MdSubscriptions,
-  MdNotifications,
-  MdSettings,
-  MdLock,
-  MdExitToApp,
-  MdKeyboardArrowDown,
-} from "react-icons/md";
-// import { useAdminProfileContext } from "../../../hooks/useAdminProfileContext";
-// import { useAdminNotificationContext } from "../../../hooks/useAdminNotificationContext";
+import {MdKeyboardArrowLeft,} from "react-icons/md";
+import { MdDashboard } from "react-icons/md";
+import { SlCalender } from "react-icons/sl";
+import { FaTasks } from "react-icons/fa";
+import { BiMenuAltLeft } from "react-icons/bi";
+import { FaBell } from "react-icons/fa";
+import { FaAngleDown } from "react-icons/fa6";
+import { useAdminProfileContext } from "../../../hooks/useAdminProfileContext";
+import { useAdminNotificationContext } from "../../../hooks/useAdminNotificationContext";
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
 import config from "../../../Functions/config";
 
-const HrNavbar = () => {
-//   const { profile } = useAdminProfileContext();
-//   const { notificationCount, unreadNotifications, dispatch } =
-//     useAdminNotificationContext();
+const HRNav = () => {
+  const { profile } = useAdminProfileContext();
+  const { notificationCount, unreadNotifications, dispatch } =
+    useAdminNotificationContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpen1, setDropdownOpen1] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -101,9 +96,8 @@ const HrNavbar = () => {
 
   return (
     <>
-      {/* <AdminSubscriptionUpdates /> */}
       <div className="z-50" onMouseLeave={() => setDropdownOpen(false)}>
-        <header className="fixed top-0 left-0 right-0 h-20 flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-[rgb(16,23,42)] border-b border-gray-700 text-sm py-2.5 sm:py-4 dark:bg-neutral-950 dark:border-neutral-700">
+        <header className="fixed top-0 left-0 right-0 h-16 flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-[rgba(41,39,63,255)] border-b border-gray-700 text-sm py-2.5 sm:py-4 dark:bg-neutral-950 dark:border-neutral-700">
           <nav
             className="flex basis-full items-center w-full mx-auto px-4 sm:px-6 lg:px-8"
             aria-label="Global"
@@ -114,8 +108,18 @@ const HrNavbar = () => {
                 href="#"
                 aria-label="Brand"
               >
-                Admin Dash
+                HR Dashboard
               </a>
+              <button
+                  type="button"
+                  className="w-[2.375rem] ml-6 h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
+                  ref={zapButtonRef}
+                >
+                  <BiMenuAltLeft className="flex-shrink-0 size-8 ml-1 sm:hidden" 
+                  onClick={toggleSidebar}
+                  />
+                </button>
+
             </div>
 
             <div className="w-full flex items-center justify-end ms-auto sm:justify-between sm:gap-x-3 sm:order-3">
@@ -126,12 +130,12 @@ const HrNavbar = () => {
                     type="button"
                     className="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none"
                   >
-                    <FiBell className="flex-shrink-0 size-4" />
-                    {/* {notificationCount > 0 && (
-                      <span className="absolute top-0 right-0 inline-flex items-center justify-center  px-2 py-1 text-xs font-bold leading-none text-red-100 bg-purple-700 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                    <FaBell className="flex-shrink-0 size-5" />
+                    {notificationCount > 0 && (
+                      <span className="absolute top-0 right-0 inline-flex items-center justify-center  px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
                         {notificationCount}
                       </span>
-                    )} */}
+                    )}
                   </button>
                   {dropdownOpen1 && (
                     <div
@@ -173,16 +177,8 @@ const HrNavbar = () => {
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
-                  onClick={toggleSidebar}
-                  ref={zapButtonRef}
-                >
-                  <FiZap className="flex-shrink-0 size-4" />
-                </button>
-
-                <div className="relative inline-flex">
+                
+                <div className="relative inline-flex justify-center items-center">
                   <button
                     onClick={() => toggleDropdown()}
                     type="button"
@@ -194,23 +190,28 @@ const HrNavbar = () => {
                       alt={profile.username}
                     /> */}
                   </button>
+                  <p className="text-white ml-2 mr-2">suryakiran s</p>
+                  <FaAngleDown 
+                  className=" text-white mt-1 "
+                  onClick={() => toggleDropdown()}
+                  />
 
                   {dropdownOpen && (
                     <div
                       onMouseLeave={() => setDropdownOpen(false)}
-                      className="absolute right-0 mt-12 w-48 bg-gray-900 border border-gray-700 shadow-lg rounded-lg p-2 z-10"
+                      className="absolute right-0 mt-44 w-48 bg-gray-900 border border-gray-700 shadow-lg rounded-lg p-2 z-10"
                     >
                       <div className="py-3 px-5 -m-2 bg-gray-900 rounded-t-lg border-b border-b-gray-700">
                         <p className="text-sm text-white">Signed in as</p>
                         <p className="text-sm font-medium text-white">
-                          {profile.username}
+                          {/* {profile.username} */}
                         </p>
                       </div>
                       <div className="mt-2 py-2 first:pt-0 last:pb-0">
                         <Link
-                          to="/admin/account"
-                          className={`flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-white hover:bg-purple-600 ${
-                            location.pathname === "/admin/account"
+                          to="/company/hrprofile"
+                          className={`flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-white hover:bg-blue-600 ${
+                            location.pathname === "/company/hrprofile"
                               ? "bg-purple-600"
                               : ""
                           }`}
@@ -222,7 +223,7 @@ const HrNavbar = () => {
                       </div>
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-white hover:bg-purple-600 w-full"
+                        className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-white hover:bg-blue-600 w-full"
                       >
                         <FiArrowRight className="flex-shrink-0 size-4" />
                         Sign out
@@ -237,7 +238,7 @@ const HrNavbar = () => {
 
         <aside
           ref={sidebarRef}
-          className={`fixed top-20 left-0 h-full w-64 bg-[rgb(16,23,42)] md:hidden border-r border-r-gray-700 shadow-lg z-50 transform ${
+          className={`fixed top-16 left-0 h-full w-64 bg-[rgba(41,39,63,255)] md:hidden border-r border-r-gray-700 shadow-lg z-50 transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } transition-transform duration-300 ease-in-out`}
         >
@@ -248,103 +249,38 @@ const HrNavbar = () => {
             >
               <Link
                 to="/admin/dashboard"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
+                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
                   location.pathname === "/admin/dashboard"
-                    ? "bg-purple-800"
+                    ? "bg-blue-800"
                     : ""
                 }`}
               >
-                <MdOutlineDashboard className="text-2xl" />
+                <MdDashboard className="text-2xl" />
                 Dashboard
               </Link>
               <Link
                 to="/admin/product-features"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
+                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
                   location.pathname === "/admin/product-features"
-                    ? "bg-purple-800"
+                    ? "bg-blue-800"
                     : ""
                 }`}
               >
-                <MdOutlineCategory className="text-2xl" />
-                Products & Features
+                <SlCalender className="text-2xl" />
+                Leaves
               </Link>
               <Link
                 to="/admin/plan-pricing"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
+                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
                   location.pathname === "/admin/plan-pricing"
-                    ? "bg-purple-800"
+                    ? "bg-blue-800"
                     : ""
                 }`}
               >
-                <MdOutlineAttachMoney className="text-2xl" />
-                Plan & Pricing
-              </Link>
-              <Link
-                to="/admin/company"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
-                  location.pathname === "/admin/company" ? "bg-purple-800" : ""
-                }`}
-              >
-                <MdBusiness className="text-2xl" />
-                Company
-              </Link>
-              <Link
-                to="/admin/subscriptions"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
-                  location.pathname === "/admin/subscriptions"
-                    ? "bg-purple-800"
-                    : ""
-                }`}
-              >
-                <MdSubscriptions className="text-2xl" />
-                Subscriptions
-              </Link>
-              <Link
-                to="/admin/notifications"
-                className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
-                  location.pathname === "/admin/notifications"
-                    ? "bg-purple-800"
-                    : ""
-                }`}
-              >
-                <MdNotifications className="text-2xl" />
-                Notifications
+                <FaTasks className="text-2xl" />
+                Task
               </Link>
             </nav>
-            <div className="mt-10">
-              <button
-                onClick={() => setAccountSettingsOpen(!accountSettingsOpen)}
-                className="flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg w-full"
-              >
-                <MdSettings className="text-2xl" />
-                Account Settings
-                <MdKeyboardArrowDown
-                  className={`ml-auto transform transition-transform ${
-                    accountSettingsOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {accountSettingsOpen && (
-                <div className="space-y-2 ml-8 mt-2 bg-gray-800 rounded-md">
-                  <Link
-                    to="/admin/account?password=reset"
-                    className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg ${
-                      pass === "reset" ? "bg-purple-800" : ""
-                    }`}
-                  >
-                    <MdLock className="text-2xl" />
-                    Password change
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="flex items-center gap-x-3 py-2 px-4 text-white hover:bg-purple-800 rounded-lg w-full"
-                  >
-                    <MdExitToApp className="text-2xl" />
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </aside>
       </div>
@@ -352,4 +288,4 @@ const HrNavbar = () => {
   );
 };
 
-export default HrNavbar;
+export default HRNav;
