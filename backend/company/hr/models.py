@@ -18,7 +18,8 @@ class Employee(models.Model):
     profileimage = models.ImageField(upload_to='employee_profile/',default='defaultprofileimage.png',null=True,blank=True)
 
 class LeaveRequest(models.Model):
-    employeeid=models.IntegerField(null=True,blank=True)
+    employeeid= models.ForeignKey(Employee, on_delete=models.CASCADE, blank=True, null=True)
+    requested_date=models.DateField(auto_now_add=True,null=True,blank=True)
     leavetype = models.CharField(max_length=255,null=True,blank=True)
     startdate = models.DateField(null=True,blank=True)
     enddate = models.DateField(null=True,blank=True)
@@ -27,7 +28,9 @@ class LeaveRequest(models.Model):
     rejectionreason = models.CharField(max_length=255,null=True,blank=True)
 
 class Notification(models.Model):
-    employeeid=models.IntegerField(null=True,blank=True)
+    employeeid= models.ForeignKey(Employee, on_delete=models.CASCADE, blank=True, null=True)
     notificationtype=models.CharField(max_length=255,null=True,blank=True)
     message=models.CharField(max_length=255,null=True,blank=True)
     date=models.DateField(auto_now_add=True)
+    is_read = models.BooleanField(default=False,null=True,blank=True)
+

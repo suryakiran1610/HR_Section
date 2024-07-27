@@ -82,10 +82,44 @@ function HRProfile() {
       });
   }, []);
 
-  function Handleprofiledetails(e) {
+  const validateEmail = (email) => {
+    let error = "";
+    if (!email) {
+      error = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      error = "Invalid email address";
+    } else if (users.some((user) => user.email === email)) {
+      error = "Email already exists";
+    }
+    setErrors((prev) => ({ ...prev, email: error }));
+    return !error;
+  };
+
+  const validateUsername = (username) => {
+    let error = "";
+    if (!username) {
+      error = "Username is required";
+    } else if (users.some((user) => user.username === username)) {
+      error = "Username already exists";
+    }
+    setErrors((prev) => ({ ...prev, username: error }));
+    return !error;
+  };
+
+  const validatePhone = (phone) => {
+    let error = "";
+    if (!phone) {
+      error = "Phone is required";
+    } else if (!/^\d{10}$/.test(phone)) {
+      error = "Phone number must be 10 digits";
+    }
+    setErrors((prev) => ({ ...prev, phone: error }));
+    return !error;
+  };
+
+  const handleChange = (e) => {
     const { name, value, type, files } = e.target;
 
-    // Update editedprofile state based on input type
     if (type === "file") {
       setEditedprofile((prevState) => ({
         ...prevState,
@@ -98,45 +132,17 @@ function HRProfile() {
       }));
     }
 
-       // Reset specific error for the field being updated
-       setErrors((prev) => ({ ...prev, [name]: "" }));
+    // Live validation based on field name
+    if (name === "email") {
+      validateEmail(value);
     }
-  
-    const validateEmail = (email) => {
-        let error = "";
-        if (!email) {
-          error = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-          error = "Invalid email address";
-        } else if (users.some((user) => user.email === email)) {
-          error = "Email already exists";
-        }
-        setErrors((prev) => ({ ...prev, email: error }));
-        return !error;
-      };
-    
-      const validateUsername = (username) => {
-        let error = "";
-        if (!username) {
-          error = "Username is required";
-        } else if (users.some((user) => user.username === username)) {
-          error = "Username already exists";
-        }
-        setErrors((prev) => ({ ...prev, username: error }));
-        return !error;
-      };
-    
-      const validatePhone = (phone) => {
-        let error = "";
-        if (!phone) {
-          error = "Phone is required";
-        } else if (!/^\d{10}$/.test(phone)) {
-          error = "Phone number must be 10 digits";
-        }
-        setErrors((prev) => ({ ...prev, phone: error }));
-        return !error;
-      };
-
+    if (name === "username") {
+      validateUsername(value);
+    }
+    if (name === "phone") {
+      validatePhone(value);
+    }
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -155,10 +161,29 @@ function HRProfile() {
       return;
     }
 
-    const emailValid = validateEmail(editedprofile.email);
-    const usernameValid = validateUsername(editedprofile.username);
-    const phoneValid = validatePhone(editedprofile.phone);
-
+    let emailValid = true;
+    let usernameValid = true;
+    let phoneValid = true;
+  
+    // Validate only changed fields
+    if (editedprofile.email && editedprofile.email !== initialprofiledetails.email) {
+      console.log("Validating email:", editedprofile.email); // Debugging
+      emailValid = validateEmail(editedprofile.email);
+    }
+  
+    if (editedprofile.username && editedprofile.username !== initialprofiledetails.username) {
+      console.log("Validating username:", editedprofile.username); // Debugging
+      usernameValid = validateUsername(editedprofile.username);
+    }
+  
+    if (editedprofile.phone && editedprofile.phone !== initialprofiledetails.phone) {
+      console.log("Validating phone:", editedprofile.phone); // Debugging
+      phoneValid = validatePhone(editedprofile.phone);
+    }
+  
+    console.log("Validation results:", { emailValid, usernameValid, phoneValid }); // Debugging
+  
+    // Check if any validation failed
     if (!emailValid || !usernameValid || !phoneValid) {
       setMessage("Please fix the errors before submitting");
       setTimeout(() => {
@@ -227,6 +252,8 @@ function HRProfile() {
     setTogglepasswordmodal(false);
     setMessage1("");
     setErrors("");
+    setErrors1("");
+    setPasswordError("");
   };
 
   function Handlepassword(e) {
@@ -238,19 +265,45 @@ function HRProfile() {
   }
 
   useEffect(() => {
+    const errors = {};
+
+    // Check for length
+    if (changepassword.newpassword && changepassword.newpassword.length < 8) {
+      errors.Length = "Password must be at least 8 characters.";
+    }
+
+    // Check for number
+    if (
+      changepassword.newpassword &&
+      !/[0-9]/.test(changepassword.newpassword)
+    ) {
+      errors.number = "Password must include at least one number.";
+    }
+
+    // Check for special character
+    if (
+      changepassword.newpassword &&
+      !/[!@#$%^&*]/.test(changepassword.newpassword)
+    ) {
+      errors.symbol = "Password must include at least one special character.";
+    }
+
+    setErrors1(errors);
+
+    // Check if passwords match
     if (changepassword.newpassword !== changepassword.confirmpassword) {
       setPasswordError("Passwords do not match");
     } else {
       setPasswordError("");
     }
-
   }, [changepassword]);
 
   const isPasswordFormValid =
     changepassword.oldpassword &&
     changepassword.newpassword &&
     changepassword.confirmpassword &&
-    passwordError === "";
+    !passwordError &&
+    !errors1;
 
   const handleSubmitpassword = (e) => {
     e.preventDefault();
@@ -351,7 +404,7 @@ function HRProfile() {
                             alt={profile.companyname}
                           />
                           <input
-                            onChange={Handleprofiledetails}
+                            onChange={handleChange}
                             name="profileimage"
                             type="file"
                             ref={fileInputRef}
@@ -373,7 +426,7 @@ function HRProfile() {
                       <div className="sm:col-span-9">
                         <div className="sm:flex">
                           <input
-                            onChange={Handleprofiledetails}
+                            onChange={handleChange}
                             name="name"
                             defaultValue={profile.name}
                             type="text"
@@ -389,7 +442,7 @@ function HRProfile() {
                       </div>
                       <div className="sm:col-span-9">
                         <input
-                          onChange={Handleprofiledetails}
+                          onChange={handleChange}
                           name="email"
                           defaultValue={profile.email}
                           type="text"
@@ -414,7 +467,7 @@ function HRProfile() {
 
                       <div className="sm:col-span-9">
                         <input
-                          onChange={Handleprofiledetails}
+                          onChange={handleChange}
                           name="username"
                           defaultValue={profile.username}
                           type="text"
@@ -433,7 +486,7 @@ function HRProfile() {
                       </div>
                       <div className="sm:col-span-9">
                         <input
-                          onChange={Handleprofiledetails}
+                          onChange={handleChange}
                           name="address"
                           defaultValue={profile.address}
                           type="text"
@@ -454,7 +507,7 @@ function HRProfile() {
 
                       <div className="sm:col-span-9">
                         <input
-                          onChange={Handleprofiledetails}
+                          onChange={handleChange}
                           name="phone"
                           defaultValue={profile.phone}
                           type="text"
@@ -484,6 +537,15 @@ function HRProfile() {
                       >
                         <span className="font-bold">Warning:</span> No changes
                         detected. You should check in on some of those fields.
+                      </div>
+                    ) : message ===
+                      "Please fix the errors before submitting" ? (
+                      <div
+                        className="mt-2 bg-red-100 border border-red-200 text-sm text-red-800 rounded-lg p-4 dark:bg-red-800/10 dark:border-red-900 dark:text-red-500"
+                        role="alert"
+                      >
+                        <span className="font-bold">Error:</span> Please fix the
+                        errors before submitting.
                       </div>
                     ) : (
                       <div
@@ -553,9 +615,23 @@ function HRProfile() {
                         type="password"
                         className="py-2 px-3 block w-full  bg-[rgba(38,40,61,255)]  border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                       />
-                      {errors1 && (
-                        <span className="text-red-500 text-xs">{errors1}</span>
-                      )}
+                      <div className="flex flex-col flex-wrap">
+                        {errors1.Length && (
+                          <span className="text-red-500 text-xs">
+                            {errors1.Length}
+                          </span>
+                        )}
+                        {errors1.number && (
+                          <span className="text-red-500 text-xs">
+                            {errors1.number}
+                          </span>
+                        )}
+                        {errors1.symbol && (
+                          <span className="text-red-500 text-xs">
+                            {errors1.symbol}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2 text-white">

@@ -42,12 +42,12 @@ const HRSidebar = ({ sidebarToggle }) => {
   const menu = [
     {
       name: "Dashboard",
-      link: "/admin/dashboard",
+      link: "/company/dashboard",
       icon: MdDashboard,
     },
     {
       name: "Leaves",
-      link: "/admin/product-features",
+      link: "/company/hrleaves",
       icon: SlCalender,
     },
     {

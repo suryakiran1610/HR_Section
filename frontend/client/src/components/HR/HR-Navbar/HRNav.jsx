@@ -1,8 +1,8 @@
 import Cookies from "js-cookie";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FiBell, FiZap, FiUser, FiArrowRight } from "react-icons/fi";
-import { useContext,useEffect, useState, useRef } from "react";
-import {MdKeyboardArrowLeft,} from "react-icons/md";
+import { useContext, useEffect, useState, useRef } from "react";
+import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
 import MakeApiRequest from "../../../Functions/AxiosApi";
 import config from "../../../Functions/config";
@@ -23,9 +23,8 @@ const HRNav = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpen1, setDropdownOpen1] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const location = useLocation();
-  const [pass, setPass] = useState();
+  const [pass, setPass] = useState("");
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
   const zapButtonRef = useRef(null);
@@ -97,7 +96,7 @@ const HRNav = () => {
 
   useEffect(() => {
     const params = {
-      user_id:"8",
+      user_id: "8",
     };
     MakeApiRequest(
       "get",
@@ -124,34 +123,32 @@ const HRNav = () => {
 
   return (
     <>
-      <div className="z-50" onMouseLeave={() => setDropdownOpen(false)}>
+      <div className="z-50">
         <header className="fixed top-0 left-0 right-0 h-16 flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-[rgba(41,39,63,255)] border-b border-gray-700 text-sm py-2.5 sm:py-4 dark:bg-neutral-950 dark:border-neutral-700">
           <nav
             className="flex basis-full items-center w-full mx-auto px-4 sm:px-6 lg:px-8"
             aria-label="Global"
           >
-            <div className="me-5 md:me-8 flex">
-              <a
-                className="flex-none text-2xl font-semibold text-white"
-                href="#"
-                aria-label="Brand"
-              >
-                HR Dashboard
-              </a>
-              <button
-                  type="button"
-                  className="w-[2.375rem] ml-6 h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
-                  ref={zapButtonRef}
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center">
+                <Link
+                  to="/company/dashboard"
+                  className="flex-none text-2xl font-semibold text-white"
+                  aria-label="Brand"
                 >
-                  <BiMenuAltLeft className="flex-shrink-0 size-8 ml-1 sm:hidden" 
+                  HR Dashboard
+                </Link>
+                <button
+                  type="button"
+                  className="w-[2.375rem] ml-6 h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600 sm:hidden"
+                  ref={zapButtonRef}
                   onClick={toggleSidebar}
-                  />
+                >
+                  <BiMenuAltLeft className="flex-shrink-0 size-8 ml-1" />
                 </button>
+              </div>
 
-            </div>
-
-            <div className="w-full flex items-center justify-end ms-auto sm:justify-between sm:gap-x-3 sm:order-3">
-              <div className="flex flex-row items-center justify-end gap-2 ml-auto">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="relative">
                   <button
                     onClick={toggleDropdown1}
@@ -160,7 +157,7 @@ const HRNav = () => {
                   >
                     <FaBell className="flex-shrink-0 size-5" />
                     {notificationCount > 0 && (
-                      <span className="absolute top-0 right-0 inline-flex items-center justify-center  px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                      <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
                         {notificationCount}
                       </span>
                     )}
@@ -168,7 +165,7 @@ const HRNav = () => {
                   {dropdownOpen1 && (
                     <div
                       onMouseLeave={() => setDropdownOpen1(false)}
-                      className="absolute right-0 mt-2 w-72 bg-slate-900 border border-gray-700 shadow-md rounded-lg z-10"
+                      className="absolute right-0 mt-2 w-72 bg-[rgba(31,28,47,255)] border border-gray-700 shadow-md rounded-lg z-10"
                     >
                       <div className="py-4 px-4 bg-gray-800 text-white font-semibold rounded-t-lg">
                         Notifications
@@ -205,12 +202,12 @@ const HRNav = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="relative inline-flex justify-center items-center">
                   <button
-                    onClick={() => toggleDropdown()}
+                    onClick={toggleDropdown}
                     type="button"
-                    className="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
+                    className="w-[2.375rem] h-[2.375rem] mr-2 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600"
                   >
                     <img
                       className="inline-block size-[38px] rounded-full object-cover"
@@ -218,21 +215,23 @@ const HRNav = () => {
                       alt="profile"
                     />
                   </button>
-                  <p className="text-white ml-2 mr-2">suryakiran s</p>
-                  <FaAngleDown 
-                  className=" text-white mt-1 "
-                  onClick={() => toggleDropdown()}
+                  <p className="text-white ml-2 mr-2 hidden sm:inline">
+                    {profile.name}
+                  </p>
+                  <FaAngleDown
+                    className="text-white mt-1 cursor-pointer"
+                    onClick={toggleDropdown}
                   />
 
                   {dropdownOpen && (
                     <div
                       onMouseLeave={() => setDropdownOpen(false)}
-                      className="absolute right-0 mt-44 w-48 bg-gray-900 border border-gray-700 shadow-lg rounded-lg p-2 z-10"
+                      className="absolute right-0 mt-48 w-48 bg-[rgba(31,28,47,255)] border border-gray-700 shadow-lg rounded-lg p-2 z-10"
                     >
-                      <div className="py-3 px-5 -m-2 bg-gray-900 rounded-t-lg border-b border-b-gray-700">
+                      <div className="py-3 px-5 -m-2 bg-[rgba(31,28,47,255)] rounded-t-lg border-b border-b-gray-700">
                         <p className="text-sm text-white">Signed in as</p>
                         <p className="text-sm font-medium text-white">
-                          {/* {profile.username} */}
+                          {profile.email}
                         </p>
                       </div>
                       <div className="mt-2 py-2 first:pt-0 last:pb-0">
@@ -240,7 +239,7 @@ const HRNav = () => {
                           to="/company/hrprofile"
                           className={`flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-white hover:bg-blue-600 ${
                             location.pathname === "/company/hrprofile"
-                              ? "bg-purple-600"
+                              ? "bg-blue-600"
                               : ""
                           }`}
                           onClick={() => setDropdownOpen(false)}
@@ -271,25 +270,20 @@ const HRNav = () => {
           } transition-transform duration-300 ease-in-out`}
         >
           <div className="p-4">
-            <nav
-              className="space-y-4 mt-10
-          "
-            >
+            <nav className="space-y-4 mt-10">
               <Link
-                to="/admin/dashboard"
+                to="/company/dashboard"
                 className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
-                  location.pathname === "/admin/dashboard"
-                    ? "bg-blue-800"
-                    : ""
+                  location.pathname === "/company/dashboard" ? "bg-blue-800" : ""
                 }`}
               >
                 <MdDashboard className="text-2xl" />
                 Dashboard
               </Link>
               <Link
-                to="/admin/product-features"
+                to="/company/hrleaves"
                 className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
-                  location.pathname === "/admin/product-features"
+                  location.pathname === "/company/hrleaves"
                     ? "bg-blue-800"
                     : ""
                 }`}

@@ -44,23 +44,20 @@ const HRDashboard = () => {
 
   return (
     <>
-      <div className="bg-[rgba(31,28,47,255)]">
+      <div className="bg-[rgb(16,23,42)]">
         <HRNav />
         <div className="flex min-h-screen pt-20">
-          <div className="w-fit md:fixed top-20 left-0 min-h-screen bottom-0 md:block hidden z-50">
+          <div className="w-fit md:fixed top-20 left-0 min-h-screen bottom-0 md:block hidden z-40">
             <HRSidebar sidebarToggle={sidebarToggle} />
           </div>
 
           <div
-            className={`flex-1 min-h-screen overflow-auto transition-all duration-300 z-40 ${
+            className={`flex-1 min-h-screen overflow-auto transition-all duration-300 ${
               isSidebarCollapsed ? "md:ml-64 ml-0" : "md:ml-20 ml-0 md:px-16"
             }`}
           >
-            <div className="bg-[rgba(31,28,47,255)] min-h-full text-white px-4">
-              <div className="bg-transparent px-4 py-16 text-white">
-                
-              </div>
-            </div>
+             <div className="w-full min-h-screen sm:px-6 lg:px-8 lg:py-7 mx-auto">
+             </div>
           </div>
         </div>
       </div>
