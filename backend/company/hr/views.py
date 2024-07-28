@@ -9,6 +9,7 @@ from .serializers import LeaveRequestSerializer
 from .models import Employee
 from .models import LeaveRequest
 from .models import Notification
+from django.db.models import Count, Q
 
 class CreateEmployee(APIView):
     def post(self, request):
@@ -112,7 +113,12 @@ class LeaveRequests(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self,request):
+        limit = int(request.query_params.get('limit', 5))
+        start_index = int(request.query_params.get('startIndex', 0))
+
         leave_requests =LeaveRequest.objects.all().order_by('-requested_date')
+        leave_requests=leave_requests[start_index:start_index+limit]
+        
         serializer = LeaveRequestSerializer(leave_requests, many=True)
         return Response(serializer.data)
     
@@ -151,3 +157,38 @@ class RejectLeave(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)              
         
 
+class EmployeeLeaveDetails(APIView):
+
+    def get(self, request):
+        employee_id = int(request.query_params.get('employee_id'))
+        try:
+            leave_requests = LeaveRequest.objects.filter(employeeid=employee_id)
+            if not leave_requests.exists():
+                return Response({"error": "No leave applications found for this employee"}, status=status.HTTP_404_NOT_FOUND)
+            
+            total_applied_leaves = leave_requests.count()
+            approved_leaves = leave_requests.filter(status='approved').count()
+            rejected_leaves = leave_requests.filter(status='rejected').count()
+
+            leave_serializer = LeaveRequestSerializer(leave_requests, many=True)
+            data = {
+                'total_applied_leaves': total_applied_leaves,
+                'approved_leaves': approved_leaves,
+                'rejected_leaves': rejected_leaves,
+                'leave_requests': leave_serializer.data
+            }
+            return Response(data)
+        except Employee.DoesNotExist:
+            return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class Leave_Details(APIView):
+
+    def get(self, request):
+        leave_id = int(request.query_params.get('leave_id'))
+        try:
+            leave = LeaveRequest.objects.get(id=leave_id)
+            serializer = LeaveRequestSerializer(leave)
+            data = serializer.data
+            return Response(data)
+        except LeaveRequest.DoesNotExist:
+            return Response({"error": "Leave not found"}, status=status.HTTP_404_NOT_FOUND)  

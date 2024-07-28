@@ -8,6 +8,8 @@ urlpatterns = [
     path('leaverequest/',views.LeaveRequests.as_view(),name="leaverequest"),
     path('approveleave/',views.ApproveLeave.as_view(),name="approveleave"),
     path('rejectleave/',views.RejectLeave.as_view(),name="rejectleave"),
+    path('employeeleavedetails/',views.EmployeeLeaveDetails.as_view(),name="employeeleavedetails"),
+    path('leave_details/',views.Leave_Details.as_view(),name="leave_details")
 
 
 ]
