@@ -10,6 +10,8 @@ from .models import Employee
 from .models import LeaveRequest
 from .models import Notification
 from django.db.models import Count, Q
+from datetime import date
+
 
 class CreateEmployee(APIView):
     def post(self, request):
@@ -111,17 +113,33 @@ class LeaveRequests(APIView):
 
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
-    def get(self,request):
+    def get(self, request):
         limit = int(request.query_params.get('limit', 5))
         start_index = int(request.query_params.get('startIndex', 0))
+        employee_info = request.query_params.get('employeeinfo', '').strip()
+        start_date = request.query_params.get('start')
+        end_date = request.query_params.get('end')
 
-        leave_requests =LeaveRequest.objects.all().order_by('-requested_date')
-        leave_requests=leave_requests[start_index:start_index+limit]
-        
+        if start_date and not end_date:
+            end_date = date.today().isoformat()
+
+        filters = Q()
+        if employee_info:
+            filters &= (Q(employeeid__id__icontains=employee_info) | Q(employeeid__name__icontains=employee_info))
+        if start_date and end_date:
+            filters &= (Q(startdate__range=[start_date, end_date]) | Q(enddate__range=[start_date, end_date]) | Q(startdate__lte=start_date, enddate__gte=end_date))
+        elif start_date:
+            filters &= Q(startdate__lte=start_date, enddate__gte=start_date)
+
+        leave_requests = LeaveRequest.objects.filter(filters).order_by('-requested_date')
+        leave_requests = leave_requests[start_index:start_index+limit]
+
         serializer = LeaveRequestSerializer(leave_requests, many=True)
         return Response(serializer.data)
-    
+
+
 class ApproveLeave(APIView):
     def put(self, request):
         print(request.data)
@@ -192,3 +210,52 @@ class Leave_Details(APIView):
             return Response(data)
         except LeaveRequest.DoesNotExist:
             return Response({"error": "Leave not found"}, status=status.HTTP_404_NOT_FOUND)  
+        
+
+class GetallNotification(APIView):
+
+    def get(self, request):
+        notifications = Notification.objects.all().order_by('-date')
+        serializer = NotificationSerializer(notifications, many=True)
+
+        unreadnotifications = Notification.objects.filter(
+            is_read=False,
+        ).count()
+        
+        response_data = {
+            'notification': serializer.data,
+            'unreadnotificationcount': unreadnotifications,
+        }
+        
+        return Response(response_data)
+    
+
+class DeleteNotification(APIView): 
+
+    def delete(self, request):
+        print(request.data)
+        notificationid =request.query_params.get('notificationid')
+        if notificationid:
+            try:
+                notifications = Notification.objects.get(id=notificationid)
+                notifications.delete()
+            except Notification.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND) 
+        return Response(status=status.HTTP_204_NO_CONTENT)    
+
+class Notificationn_Readed(APIView): 
+       
+    def put(self,request):
+        print(request.data)
+        notificationid=int(request.query_params.get('notificationid'))
+        notifications = Notification.objects.get(id=notificationid)
+        notifications.is_read = 1
+        notifications.save()
+        return Response({'message': 'Notification Readed'}, status=status.HTTP_200_OK)
+
+class Leaverequest_for_chart(APIView):
+    def get(self, request):
+
+        leave_requests = LeaveRequest.objects.all()
+        serializer = LeaveRequestSerializer(leave_requests, many=True)
+        return Response(serializer.data)

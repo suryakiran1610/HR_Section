@@ -8,7 +8,7 @@ import { useSidebarContext } from "../../../hooks/useSidebarContext";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { saveAs } from "file-saver";
+import { FaSearch } from "react-icons/fa";
 
 function HRLeaves() {
   const { isSidebarCollapsed, dispatch: sidebarDispatch } = useSidebarContext();
@@ -24,7 +24,10 @@ function HRLeaves() {
   const [message1, setMessage1] = useState("");
   const [startIndex, setStartIndex] = useState(0);
   const [limit, setLimit] = useState(5);
-
+  const [employee, setEmployee] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const sidebarToggle = () => {
     sidebarDispatch({ type: "TOGGLE_SIDEBAR" });
@@ -162,19 +165,26 @@ function HRLeaves() {
   };
 
   useEffect(() => {
+    loadleavedetails();
+  }, [limit, startIndex]);
+
+  const loadleavedetails = () => {
     const params = {
-        limit: limit,
-        startIndex: startIndex,
-      };
+      limit: limit,
+      startIndex: startIndex,
+      employeeinfo: employee,
+      start: startDate,
+      end: endDate,
+    };
     MakeApiRequest("get", `${config.baseUrl}hr/leaverequest/`, {}, params, {})
       .then((response) => {
         console.log("leaverequests", response);
         setLeaverequest(response);
         if (response.length < 5) {
-            setButtonstatus(false);
-          } else {
-            setButtonstatus(true);
-          }
+          setButtonstatus(false);
+        } else {
+          setButtonstatus(true);
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -186,7 +196,7 @@ function HRLeaves() {
           console.error("Unexpected error occurred:", error);
         }
       });
-  }, [limit, startIndex]);
+  };
 
   const handleLoadMore = () => {
     setStartIndex(startIndex + limit);
@@ -195,7 +205,6 @@ function HRLeaves() {
   const handleLoadPrevious = () => {
     setStartIndex(Math.max(0, startIndex - limit));
   };
-
 
   const handleDownloadPdf = (EmployeeID) => {
     const params = {
@@ -301,7 +310,7 @@ function HRLeaves() {
         // Prepare table data
         const tableColumn = [
           "Employee ID",
-          "Requested Date",
+          "Leave Requested Date",
           "Leave Type",
           "From",
           "To",
@@ -386,11 +395,46 @@ function HRLeaves() {
       });
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (employee || startDate || endDate) {
+      setStartIndex(0);
+      loadleavedetails();
+    }
+    if (endDate) {
+      setErrorMessage("Add Start Date to Search");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 2000);
+    }
+    else{
+      setErrorMessage("Add inputs to Search");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    if (startDate === "" && endDate === "" && employee === "") {
+      loadleavedetails();
+    }
+  }, [startDate, endDate, employee]);
+
+  const handlereset = (e) => {
+    e.preventDefault();
+    setEndDate("");
+    setStartDate("");
+    setEmployee("");
+    setStartIndex(0);
+    setLimit(5);
+  };
+
   return (
     <>
       <div className="bg-[rgb(16,23,42)]">
         <HRNav />
-        <div className="flex min-h-screen pt-20">
+        <div className="flex min-h-screen pt-16">
           <div className="w-fit md:fixed top-20 left-0 min-h-screen bottom-0 md:block hidden z-40">
             <HRSidebar sidebarToggle={sidebarToggle} />
           </div>
@@ -400,8 +444,73 @@ function HRLeaves() {
               isSidebarCollapsed ? "md:ml-64 ml-0" : "md:ml-20 ml-0 md:px-16"
             }`}
           >
-            <div className="w-full min-h-screen sm:px-6 lg:px-8 lg:py-7 mx-auto">
-              <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+            <div className="w-full min-h-screen sm:px-6 lg:px-8 lg:py-1 mx-auto">
+            <div>
+              <div className="flex items-center justify-center p-4">
+                  <form className="bg-[rgb(16,23,42)] shadow-xl flex flex-col lg:flex-row md:flex-col w-full max-w-3xl border mt-5 rounded-xl overflow-hidden items-center space-y-2 md:space-y-0">
+                    <div className="relative flex w-full md:flex-1 p-2">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <FaSearch className="text-white" />
+                      </span>
+                      <input
+                        value={employee}
+                        onChange={(e) => setEmployee(e.target.value)}
+                        type="text"
+                        placeholder="Search by Id,Name"
+                        className="w-full h-full placeholder:text-white bg-[rgb(16,23,42)] px-4 py-2 pl-12 text-sm text-white border-none rounded-t-lg md:rounded-l-lg md:rounded-t-none focus:outline-none focus:ring-0 focus:border-transparent "
+                      />
+                    </div>
+
+                    <div className="flex flex-col md:flex-row w-full md:flex-1 p-2 space-y-2 md:space-y-0 md:space-x-2">
+                      <div className="flex items-center w-full md:flex-1">
+                        <label className="text-sm text-white mb-1 mr-1">
+                          Start
+                        </label>
+                        <input
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          type="date"
+                          className="w-full bg-[rgb(16,23,42)] px-4 py-2 text-sm text-white border rounded-lg focus:outline-none focus:ring-0 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex items-center w-full md:flex-1">
+                        <label className="text-sm text-white mb-1 mr-2">
+                          End
+                        </label>
+                        <input
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          type="date"
+                          className="w-full bg-[rgb(16,23,42)] px-4 py-2 text-sm text-white border rounded-lg focus:outline-none focus:ring-0 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w-full md:flex-1 p-2">
+                      <button
+                        onClick={handleSearch}
+                        className="w-full px-4 py-2 text-white bg-blue-800 hover:bg-blue-900 rounded-b-lg md:rounded-lg"
+                      >
+                        Search
+                      </button>
+                    </div>
+                    <div className="w-full md:flex-1 p-2">
+                      <button
+                        onClick={handlereset}
+                        className="w-full px-4 py-2 text-white bg-blue-800 hover:bg-blue-900 rounded-b-lg md:rounded-lg"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                {errorMessage && (
+                  <p className="text-xs text-red-600 text-center">
+                    {errorMessage}
+                  </p>
+                )}
+              </div>
+              <div className="max-w-[85rem] px-4 py-11 sm:px-6 lg:px-8 lg:py-5 mx-auto">
                 <div className="flex flex-col">
                   <div className="-m-1.5 overflow-x-auto">
                     <div className="p-1.5 min-w-full inline-block align-middle">
@@ -427,7 +536,7 @@ function HRLeaves() {
                               </th>
 
                               <th scope="col" className="px-6 py-3 text-start">
-                                <div className="flex items-center gap-x-2 ml-14">
+                                <div className="flex items-center gap-x-2 ml-24">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
                                     Start
                                   </span>
@@ -435,7 +544,7 @@ function HRLeaves() {
                               </th>
 
                               <th scope="col" className="px-11 py-3 text-start">
-                                <div className="flex items-center gap-x-2">
+                                <div className="flex items-center gap-x-2 mr-12">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
                                     End
                                   </span>
@@ -495,7 +604,7 @@ function HRLeaves() {
                                   </div>
                                 </td>
                                 <td className="h-px whitespace-nowrap">
-                                  <div className="px-6 py-3 ml-12">
+                                  <div className="px-6 py-3 ml-20">
                                     <span className="block text-sm font-semibold text-white dark:text-neutral-200">
                                       {leave.startdate}
                                     </span>
@@ -608,8 +717,8 @@ function HRLeaves() {
                             <div className="inline-flex gap-x-2">
                               <button
                                 type="button"
-                                  disabled={startIndex === 0}
-                                  onClick={handleLoadPrevious}
+                                disabled={startIndex === 0}
+                                onClick={handleLoadPrevious}
                                 className="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-[rgb(16,23,42)] text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
                               >
                                 <svg
@@ -631,8 +740,8 @@ function HRLeaves() {
 
                               <button
                                 type="button"
-                                  disabled={!buttonstatus}
-                                  onClick={handleLoadMore}
+                                disabled={!buttonstatus}
+                                onClick={handleLoadMore}
                                 className="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-[rgb(16,23,42)] hover:bg-gray-800 text-white shadow-sm  disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
                               >
                                 Next
@@ -728,7 +837,7 @@ function HRLeaves() {
                 )}
                 {message1 && (
                   <div
-                    className="mt-2 bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500"
+                    className="mt-9 bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500"
                     role="alert"
                   >
                     <span className="font-bold">Success:</span>
@@ -740,10 +849,10 @@ function HRLeaves() {
           )}
 
           {toggleleavedetails && leavedetails && leavedetails.employee && (
-            <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="fixed inset-0 flex items-center justify-center z-50 pt-5 pb-11">
               <div className="fixed inset-0 bg-black opacity-50"></div>
-              <div className="bg-[rgba(38,40,61,255)] w-11/12 max-w-md p-8 rounded shadow-lg relative">
-                <h2 className="text-xl font-semibold mb-4 text-white">
+              <div className="bg-[rgba(38,40,61,255)] w-11/12 max-w-md p-8 rounded-md shadow-lg relative max-h-full overflow-y-auto">
+                <h2 className="text-xl font-semibold mb-4 text-white text-center">
                   Leave Details
                 </h2>
                 <div className="flex justify-end">
@@ -773,52 +882,63 @@ function HRLeaves() {
                     alt={leavedetails.employee.name}
                     className="w-24 h-24 rounded-full mb-4"
                   />
-                  <div className="text-white">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2">
+                  <div className="text-white w-full flex flex-col items-center">
+                    <div className="mb-4 w-full">
+                      <h3 className="text-lg font-semibold mb-2 text-center">
                         Employee Details
                       </h3>
-                      <p>
-                        <strong>Employee ID:</strong> {leavedetails.employeeid}
-                      </p>
-                      <p>
-                        <strong>Employee Name:</strong>{" "}
-                        {leavedetails.employee.name}
-                      </p>
-                      <p>
-                        <strong>Employee Email:</strong>{" "}
-                        {leavedetails.employee.email}
-                      </p>
-                      <p>
-                        <strong>Employee Phone:</strong>{" "}
-                        {leavedetails.employee.phone}
-                      </p>
+                      <div className="text-center">
+                        <p className="mt-1">
+                          <strong>Employee ID:</strong>{" "}
+                          {leavedetails.employeeid}
+                        </p>
+                        <p className="mt-1">
+                          <strong>Employee Name:</strong>{" "}
+                          {leavedetails.employee.name}
+                        </p>
+                        <p className="mt-1">
+                          <strong>Employee Email:</strong>{" "}
+                          {leavedetails.employee.email}
+                        </p>
+                        <p className="mt-1">
+                          <strong>Employee Phone:</strong>{" "}
+                          {leavedetails.employee.phone}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">
+                    <div className="w-full">
+                      <h3 className="text-lg font-semibold mb-2 text-center">
                         Leave Details
                       </h3>
-                      <p>
-                        <strong>Leave Type:</strong> {leavedetails.leavetype}
-                      </p>
-                      <p>
-                        <strong>Start Date:</strong> {leavedetails.startdate}
-                      </p>
-                      <p>
-                        <strong>End Date:</strong> {leavedetails.enddate}
-                      </p>
-                      <p>
-                        <strong>Reason:</strong> {leavedetails.reason}
-                      </p>
-                      <p>
-                        <strong>Status:</strong> {leavedetails.status}
-                      </p>
-                      {leavedetails.rejectionreason && (
-                        <p>
-                          <strong>Rejection Reason:</strong>{" "}
-                          {leavedetails.rejectionreason}
+                      <div className="text-center">
+                        <p className="mt-1">
+                          <strong>Leave Type:</strong> {leavedetails.leavetype}
                         </p>
-                      )}
+                        <p className="mt-1">
+                          <strong>Start Date:</strong> {leavedetails.startdate}
+                        </p>
+                        <p className="mt-1">
+                          <strong>End Date:</strong> {leavedetails.enddate}
+                        </p>
+                        <p className="mt-1">
+                          <strong>Status:</strong> {leavedetails.status}
+                        </p>
+                        <div className="w-full text-center mt-4">
+                          <div className="w-full  p-2 rounded-md">
+                            <p className="text-white">
+                              <strong>Reason:</strong> {leavedetails.reason}
+                            </p>
+                          </div>
+                          {leavedetails.rejectionreason && (
+                            <div className="w-full  p-2 rounded-md mt-2">
+                              <p className="text-white">
+                                <strong>Rejection Reason:</strong>{" "}
+                                {leavedetails.rejectionreason}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

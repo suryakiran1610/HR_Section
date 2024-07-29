@@ -15,9 +15,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
         return employee
 
 class NotificationSerializer(serializers.ModelSerializer):
+    employeeid = EmployeeSerializer()
+    
     class Meta:
         model = Notification
         fields = '__all__'
+        
 
 
 class LeaveRequestSerializer(serializers.ModelSerializer):

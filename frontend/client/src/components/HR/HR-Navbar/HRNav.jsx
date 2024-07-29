@@ -11,15 +11,16 @@ import { FaTasks } from "react-icons/fa";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { FaBell } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
-import { useAdminNotificationContext } from "../../../hooks/useAdminNotificationContext";
 import ProfileContext from "../../../context/ProfileContext";
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
 
 const HRNav = () => {
   const { profile, setProfile } = useContext(ProfileContext);
-  const { notificationCount, unreadNotifications, dispatch } =
-    useAdminNotificationContext();
+  const [notifications, setNotifications] = useState({
+    notification: [],
+    unreadnotificationcount: 0,
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpen1, setDropdownOpen1] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,23 +76,29 @@ const HRNav = () => {
     };
   }, [sidebarRef, zapButtonRef]);
 
+  const updateNotification = () => {
+    MakeApiRequest("get", `${config.baseUrl}hr/getallnotification/`, {}, {}, {})
+      .then((response) => {
+        console.log("notification", response);
+        setNotifications({
+          notification: response.notification,
+          unreadnotificationcount: response.unreadnotificationcount,
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        if (error.response && error.response.status === 401) {
+          console.log(
+            "Unauthorized access. Token might be expired or invalid."
+          );
+        } else {
+          console.error("Unexpected error occurred:", error);
+        }
+      });
+  };
+
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(
-          `${config.baseApiUrl}admin/notifications/`
-        );
-
-        const unread = response.data.filter(
-          (notification) => !notification.is_read
-        );
-        dispatch({ type: "UPDATE_UNREAD_NOTIFICATIONS", payload: unread });
-      } catch (error) {
-        console.error("Failed to fetch notifications", error);
-      }
-    };
-
-    fetchNotifications();
+    updateNotification();
   }, []);
 
   useEffect(() => {
@@ -121,6 +128,62 @@ const HRNav = () => {
       });
   }, []);
 
+  const deletenotification = (notificationId) => {
+    const params = {
+      notificationid: notificationId,
+    };
+
+    MakeApiRequest(
+      "delete",
+      `${config.baseUrl}hr/deletenotification/`,
+      {},
+      params,
+      {}
+    )
+      .then((response) => {
+        console.log(response);
+        updateNotification();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        if (error.response && error.response.status === 401) {
+          console.log(
+            "Unauthorized access. Token might be expired or invalid."
+          );
+        } else {
+          console.error("Unexpected error occurred:", error);
+        }
+      });
+  };
+
+  const readed = (notificationId) => {
+    const params = {
+      notificationid: notificationId,
+    };
+
+    MakeApiRequest(
+      "put",
+      `${config.baseUrl}hr/notificationn_readed/`,
+      {},
+      params,
+      {}
+    )
+      .then((response) => {
+        console.log(response);
+        updateNotification();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        if (error.response && error.response.status === 401) {
+          console.log(
+            "Unauthorized access. Token might be expired or invalid."
+          );
+        } else {
+          console.error("Unexpected error occurred:", error);
+        }
+      });
+  };
+
   return (
     <>
       <div className="z-50">
@@ -147,7 +210,6 @@ const HRNav = () => {
                   <BiMenuAltLeft className="flex-shrink-0 size-8 ml-1" />
                 </button>
               </div>
-
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="relative">
                   <button
@@ -156,9 +218,9 @@ const HRNav = () => {
                     className="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none"
                   >
                     <FaBell className="flex-shrink-0 size-5" />
-                    {notificationCount > 0 && (
-                      <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
-                        {notificationCount}
+                    {notifications.unreadnotificationcount > 0 && (
+                      <span className="absolute top-1 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-500 rounded-full transform translate-x-1/2 -translate-y-1/2">
+                        {notifications.unreadnotificationcount}
                       </span>
                     )}
                   </button>
@@ -171,28 +233,73 @@ const HRNav = () => {
                         Notifications
                       </div>
                       <div className="max-h-60 overflow-y-auto divide-y divide-gray-700">
-                        {unreadNotifications.length > 0 ? (
-                          unreadNotifications.map((notification, index) => (
-                            <div
-                              key={notification.id}
-                              onClick={() => navigate("/admin/notifications")}
-                              className={`p-4 text-white cursor-pointer hover:bg-slate-800 ${
-                                index === unreadNotifications.length - 1
-                                  ? "rounded-b-lg"
-                                  : ""
-                              }`}
-                            >
-                              <p>{notification.message}</p>
-                              <p className="text-xs text-gray-400">
-                                {formatDistanceToNow(
-                                  new Date(notification.created_at),
-                                  {
-                                    addSuffix: true,
-                                  }
-                                )}
-                              </p>
-                            </div>
-                          ))
+                        {notifications.notification.length > 0 ? (
+                          notifications.notification.map(
+                            (notification, index) =>
+                              notification.notificationtype ===
+                              "leave request" ? (
+                                <div
+                                  key={notification.id}
+                                  onClick={() => {
+                                    readed(notification.id);
+                                  }}
+                                  className={`w-full p-3 mt-2 mb-2  rounded shadow hover:shadow-lg transition-shadow duration-300 ease-in-out flex flex-shrink-0 ${
+                                    notification.is_read
+                                      ? " bg-[rgba(31,30,47,255)] text-white"
+                                      : "bg-blue-200"
+                                  }`}
+                                >
+                                  <div
+                                    tabIndex="0"
+                                    aria-label="group icon"
+                                    role="img"
+                                    className="focus:outline-none mr-2 w-8 h-8 border rounded-full border-gray-200 flex flex-shrink-0 items-center justify-center"
+                                  >
+                                    <img
+                                      className="inline-block size-[38px] rounded-full object-cover"
+                                      src={`${config.imagebaseurl}${notification.employeeid.profileimage}`}
+                                      alt="profile"
+                                    />
+                                  </div>
+                                  <div>
+                                    <p>
+                                      {notification.message} by{" "}
+                                      {notification.employeeid.name}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      {notification.date}
+                                    </p>
+                                  </div>
+                                  <div
+                                    className="focus:outline-none cursor-pointer flex w-3/5 justify-end"
+                                  >
+                                    <svg
+                                      onClick={() => {
+                                        deletenotification(notification.id);
+                                      }}
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 14 14"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M10.5 3.5L3.5 10.5"
+                                        stroke="#4B5563"
+                                        strokeWidth="1.25"
+                                        strokeLinejoin="round"
+                                      />
+                                      <path
+                                        d="M3.5 3.5L10.5 10.5"
+                                        stroke="#4B5563"
+                                        strokeWidth="1.25"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  </div>
+                                </div>
+                              ) : null
+                          )
                         ) : (
                           <div className="p-4 text-gray-400">
                             No new notifications
@@ -274,7 +381,9 @@ const HRNav = () => {
               <Link
                 to="/company/dashboard"
                 className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
-                  location.pathname === "/company/dashboard" ? "bg-blue-800" : ""
+                  location.pathname === "/company/dashboard"
+                    ? "bg-blue-800"
+                    : ""
                 }`}
               >
                 <MdDashboard className="text-2xl" />
@@ -283,9 +392,7 @@ const HRNav = () => {
               <Link
                 to="/company/hrleaves"
                 className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
-                  location.pathname === "/company/hrleaves"
-                    ? "bg-blue-800"
-                    : ""
+                  location.pathname === "/company/hrleaves" ? "bg-blue-800" : ""
                 }`}
               >
                 <SlCalender className="text-2xl" />
