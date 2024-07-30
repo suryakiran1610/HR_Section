@@ -360,13 +360,14 @@ function HRLeaves() {
             fontStyle: "bold",
           },
           columnStyles: {
-            0: { cellWidth: 80 },
-            1: { cellWidth: 80 },
-            2: { cellWidth: 80 },
-            3: { cellWidth: 80 },
-            4: { cellWidth: 120 },
-            5: { cellWidth: 80 },
-            6: { cellWidth: 120 },
+            0: { cellWidth: 60 }, // Employee ID
+            1: { cellWidth: 60 }, // Leave Requested Date
+            2: { cellWidth: 60 }, // Leave Type
+            3: { cellWidth: 60 }, // From
+            4: { cellWidth: 60 }, // To
+            5: { cellWidth: 200 }, // Reason
+            6: { cellWidth: 60 }, // Status
+            7: { cellWidth: 200 }, // Rejection Reason
           },
           didDrawPage: function (data) {
             let str = "Page " + doc.internal.getNumberOfPages();
@@ -401,18 +402,6 @@ function HRLeaves() {
       setStartIndex(0);
       loadleavedetails();
     }
-    if (endDate) {
-      setErrorMessage("Add Start Date to Search");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 2000);
-    }
-    else{
-      setErrorMessage("Add inputs to Search");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 2000);
-    }
   };
 
   useEffect(() => {
@@ -445,9 +434,9 @@ function HRLeaves() {
             }`}
           >
             <div className="w-full min-h-screen sm:px-6 lg:px-8 lg:py-1 mx-auto">
-            <div>
-              <div className="flex items-center justify-center p-4">
-                  <form className="bg-[rgb(16,23,42)] shadow-xl flex flex-col lg:flex-row md:flex-col w-full max-w-3xl border mt-5 rounded-xl overflow-hidden items-center space-y-2 md:space-y-0">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex items-center justify-center p-4">
+                  <form className="bg-[rgb(16,23,42)] shadow-xl flex flex-col lg:flex-row md:flex-col w-full max-w-4xl border mt-5 rounded-xl overflow-hidden items-center space-y-2 md:space-y-0">
                     <div className="relative flex w-full md:flex-1 p-2">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                         <FaSearch className="text-white" />
@@ -882,12 +871,12 @@ function HRLeaves() {
                     alt={leavedetails.employee.name}
                     className="w-24 h-24 rounded-full mb-4"
                   />
-                  <div className="text-white w-full flex flex-col items-center">
+                  <div className="text-white w-full">
                     <div className="mb-4 w-full">
-                      <h3 className="text-lg font-semibold mb-2 text-center">
+                      <h3 className="text-lg font-semibold mb-2 text-left">
                         Employee Details
                       </h3>
-                      <div className="text-center">
+                      <div className="text-left">
                         <p className="mt-1">
                           <strong>Employee ID:</strong>{" "}
                           {leavedetails.employeeid}
@@ -907,10 +896,10 @@ function HRLeaves() {
                       </div>
                     </div>
                     <div className="w-full">
-                      <h3 className="text-lg font-semibold mb-2 text-center">
+                      <h3 className="text-lg font-semibold mb-2 text-left">
                         Leave Details
                       </h3>
-                      <div className="text-center">
+                      <div className="text-left">
                         <p className="mt-1">
                           <strong>Leave Type:</strong> {leavedetails.leavetype}
                         </p>
@@ -923,14 +912,14 @@ function HRLeaves() {
                         <p className="mt-1">
                           <strong>Status:</strong> {leavedetails.status}
                         </p>
-                        <div className="w-full text-center mt-4">
-                          <div className="w-full  p-2 rounded-md">
+                        <div className="w-full mt-4">
+                          <div className="w-full p-2 rounded-md">
                             <p className="text-white">
                               <strong>Reason:</strong> {leavedetails.reason}
                             </p>
                           </div>
                           {leavedetails.rejectionreason && (
-                            <div className="w-full  p-2 rounded-md mt-2">
+                            <div className="w-full p-2 rounded-md mt-2">
                               <p className="text-white">
                                 <strong>Rejection Reason:</strong>{" "}
                                 {leavedetails.rejectionreason}

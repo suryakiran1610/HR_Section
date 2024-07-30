@@ -12,15 +12,12 @@ import { BiMenuAltLeft } from "react-icons/bi";
 import { FaBell } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
 import ProfileContext from "../../../context/ProfileContext";
-import { formatDistanceToNow } from "date-fns";
-import axios from "axios";
+import NotificationContext from "../../../context/NotificationContext";
 
 const HRNav = () => {
   const { profile, setProfile } = useContext(ProfileContext);
-  const [notifications, setNotifications] = useState({
-    notification: [],
-    unreadnotificationcount: 0,
-  });
+  const { notifications,updateNotification } = useContext(NotificationContext);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpen1, setDropdownOpen1] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -76,26 +73,6 @@ const HRNav = () => {
     };
   }, [sidebarRef, zapButtonRef]);
 
-  const updateNotification = () => {
-    MakeApiRequest("get", `${config.baseUrl}hr/getallnotification/`, {}, {}, {})
-      .then((response) => {
-        console.log("notification", response);
-        setNotifications({
-          notification: response.notification,
-          unreadnotificationcount: response.unreadnotificationcount,
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        if (error.response && error.response.status === 401) {
-          console.log(
-            "Unauthorized access. Token might be expired or invalid."
-          );
-        } else {
-          console.error("Unexpected error occurred:", error);
-        }
-      });
-  };
 
   useEffect(() => {
     updateNotification();
@@ -272,13 +249,17 @@ const HRNav = () => {
                                   </div>
                                   <div
                                     className="focus:outline-none cursor-pointer flex w-3/5 justify-end"
+                                    onClick={() => {
+                                      deletenotification(notification.id);
+                                    }}
+
                                   >
                                     <svg
                                       onClick={() => {
                                         deletenotification(notification.id);
                                       }}
-                                      width="14"
-                                      height="14"
+                                      width="16"
+                                      height="16"
                                       viewBox="0 0 14 14"
                                       fill="none"
                                       xmlns="http://www.w3.org/2000/svg"

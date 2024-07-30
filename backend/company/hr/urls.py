@@ -14,5 +14,7 @@ urlpatterns = [
     path('deletenotification/',views.DeleteNotification.as_view(),name="deletenotification"),
     path('notificationn_readed/',views.Notificationn_Readed.as_view(),name="notificationn_readed"),
     path('leaverequest_for_chart/',views.Leaverequest_for_chart.as_view(),name="leaverequest_for_chart"),
+    path('dashboard_data/',views.Dashboard_Data.as_view(),name="dashboard_data"),
+
 
 ]

@@ -288,7 +288,11 @@ function HRProfile() {
       errors.symbol = "Password must include at least one special character.";
     }
 
-    setErrors1(errors);
+    if (Object.keys(errors).length > 0) {
+        setErrors1(errors);
+      } else {
+        setErrors1("");
+      }
 
     // Check if passwords match
     if (changepassword.newpassword !== changepassword.confirmpassword) {

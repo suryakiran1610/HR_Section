@@ -23,9 +23,9 @@ class LeaveRequest(models.Model):
     leavetype = models.CharField(max_length=255,null=True,blank=True)
     startdate = models.DateField(null=True,blank=True)
     enddate = models.DateField(null=True,blank=True)
-    reason = models.CharField(max_length=255,null=True,blank=True)
+    reason = models.CharField(max_length=2000,null=True,blank=True)
     status = models.CharField(max_length=50,default='pending',null=True,blank=True)
-    rejectionreason = models.CharField(max_length=255,null=True,blank=True)
+    rejectionreason = models.CharField(max_length=2000,null=True,blank=True)
 
 class Notification(models.Model):
     employeeid= models.ForeignKey(Employee, on_delete=models.CASCADE, blank=True, null=True)

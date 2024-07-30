@@ -11,7 +11,8 @@ from .models import LeaveRequest
 from .models import Notification
 from django.db.models import Count, Q
 from datetime import date
-
+from django.utils import timezone
+from datetime import timedelta
 
 class CreateEmployee(APIView):
     def post(self, request):
@@ -259,3 +260,33 @@ class Leaverequest_for_chart(APIView):
         leave_requests = LeaveRequest.objects.all()
         serializer = LeaveRequestSerializer(leave_requests, many=True)
         return Response(serializer.data)
+
+
+
+class Dashboard_Data(APIView):
+    def get(self, request):
+        # Current date
+        today = timezone.now().date()
+        
+        # Counts
+        employee_count = Employee.objects.all().count()
+        leave_requests_count = LeaveRequest.objects.all().count()
+        pending_leave_count = LeaveRequest.objects.filter(status="pending").count()
+        
+        # Leave requests count for the current date
+        current_date_leave_count = LeaveRequest.objects.filter(requested_date=today).count()
+
+        # Employees registered in the last week
+        one_week_ago = today - timedelta(days=7)
+        last_week_employee_count = Employee.objects.filter(register_date__gte=one_week_ago).count()
+
+        data = {
+            'employee_count': employee_count,
+            'leave_requests_count': leave_requests_count,
+            'pending_leave_count': pending_leave_count,
+            'current_date_leave_count': current_date_leave_count,
+            'last_week_employee_count': last_week_employee_count,
+        }
+        
+        return Response(data)
+

@@ -2,14 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
-import { AdminNotificationContextProvider } from "./context/adminNotificationContext.jsx";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { SidebarContextProvider } from "./context/sidebarContext.jsx";
 import { ProfileProvider } from "./context/ProfileContext.jsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <React.StrictMode>
-  <AdminNotificationContextProvider>
+  <NotificationProvider>
         <ProfileProvider>
       <SidebarContextProvider>
         <BrowserRouter>
@@ -17,6 +17,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </BrowserRouter>
       </SidebarContextProvider>
       </ProfileProvider>
-  </AdminNotificationContextProvider>
+  </NotificationProvider>
   // </React.StrictMode>
 );
