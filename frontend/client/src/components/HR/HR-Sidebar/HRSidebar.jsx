@@ -5,6 +5,7 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { FaTasks } from "react-icons/fa";
+import { IoIosPeople } from "react-icons/io";
 import React from "react";
 import { useSidebarContext } from "../../../hooks/useSidebarContext";
 import "./HRSidebar.css";
@@ -49,6 +50,11 @@ const HRSidebar = ({ sidebarToggle }) => {
       name: "Leaves",
       link: "/company/hrleaves",
       icon: SlCalender,
+    },
+    {
+      name: "Employees",
+      link: "/company/employees",
+      icon: IoIosPeople,
     },
     {
       name: "Task",

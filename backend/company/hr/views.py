@@ -26,7 +26,14 @@ class CreateEmployee(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self,request):
-        employee=Employee.objects.all()
+        limit = int(request.query_params.get('limit', 5))
+        start_index = int(request.query_params.get('startIndex', 0))
+        employee_info = request.query_params.get('employeeinfo', '').strip()
+        start_date = request.query_params.get('start')
+        end_date = request.query_params.get('end')
+
+        employee=Employee.objects.all().order_by('-register_date')
+        employee=employee[start_index:start_index+limit]
         serializer=EmployeeSerializer(employee,many=True)
         return Response(serializer.data)
     
@@ -155,7 +162,7 @@ class ApproveLeave(APIView):
             serializer.save()
             return Response(serializer.data)
         else:
-            print(serializer.errors)  # Log the serializer errors
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   
 
 class RejectLeave(APIView):
@@ -172,7 +179,7 @@ class RejectLeave(APIView):
             serializer.save()
             return Response(serializer.data)
         else:
-            print(serializer.errors)  # Log the serializer errors
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)              
         
 
@@ -265,18 +272,14 @@ class Leaverequest_for_chart(APIView):
 
 class Dashboard_Data(APIView):
     def get(self, request):
-        # Current date
         today = timezone.now().date()
         
-        # Counts
         employee_count = Employee.objects.all().count()
         leave_requests_count = LeaveRequest.objects.all().count()
         pending_leave_count = LeaveRequest.objects.filter(status="pending").count()
         
-        # Leave requests count for the current date
         current_date_leave_count = LeaveRequest.objects.filter(requested_date=today).count()
 
-        # Employees registered in the last week
         one_week_ago = today - timedelta(days=7)
         last_week_employee_count = Employee.objects.filter(register_date__gte=one_week_ago).count()
 

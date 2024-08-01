@@ -506,7 +506,7 @@ function HRLeaves() {
                       <div className="bg-[rgb(16,23,42)] border border-gray-200 rounded-xl shadow-sm overflow-hidden dark:bg-neutral-800 dark:border-neutral-700">
                         <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
                           <h2 className="text-xl font-semibold text-white dark:text-neutral-200">
-                            Employees
+                            Leave Request
                           </h2>
                         </div>
 
@@ -879,7 +879,7 @@ function HRLeaves() {
                       <div className="text-left">
                         <p className="mt-1">
                           <strong>Employee ID:</strong>{" "}
-                          {leavedetails.employeeid}
+                          {leavedetails.employee.employeeid}
                         </p>
                         <p className="mt-1">
                           <strong>Employee Name:</strong>{" "}
@@ -913,13 +913,13 @@ function HRLeaves() {
                           <strong>Status:</strong> {leavedetails.status}
                         </p>
                         <div className="w-full mt-4">
-                          <div className="w-full p-2 rounded-md">
+                          <div className="w-full  rounded-md">
                             <p className="text-white">
                               <strong>Reason:</strong> {leavedetails.reason}
                             </p>
                           </div>
                           {leavedetails.rejectionreason && (
-                            <div className="w-full p-2 rounded-md mt-2">
+                            <div className="w-full  rounded-md mt-2">
                               <p className="text-white">
                                 <strong>Rejection Reason:</strong>{" "}
                                 {leavedetails.rejectionreason}

@@ -263,7 +263,7 @@ const HRDashboard = () => {
                 </dl>
               </div>
               </div>
-              <p className="text-xl text-white font-semibold mb-1 ml-2">
+              <p className="text-xl text-white font-semibold mb-4 ml-2">
                 Leave Statistics
               </p>
               <div className="mb-4 flex flex-wrap items-center gap-4 ml-2">
@@ -272,6 +272,7 @@ const HRDashboard = () => {
                   <select
                     name="leaveType"
                     onChange={handleFilterChange}
+                    value={filters.leaveType}
                     className="bg-[rgb(16,23,42)] text-white p-1 rounded"
                   >
                     <option value="">All</option>
@@ -286,6 +287,7 @@ const HRDashboard = () => {
                   <select
                     name="status"
                     onChange={handleFilterChange}
+                    value={filters.status}
                     className="bg-[rgb(16,23,42)] text-white p-1 rounded"
                   >
                     <option value="">All</option>
@@ -300,6 +302,7 @@ const HRDashboard = () => {
                     type="date"
                     name="startDate"
                     onChange={handleFilterChange}
+                    value={filters.startDate}
                     className="bg-[rgb(16,23,42)] text-white p-1 rounded"
                   />
                 </div>
@@ -309,6 +312,7 @@ const HRDashboard = () => {
                     type="date"
                     name="endDate"
                     onChange={handleFilterChange}
+                    value={filters.endDate}
                     className="bg-[rgb(16,23,42)] text-white p-1 rounded"
                   />
                 </div>
