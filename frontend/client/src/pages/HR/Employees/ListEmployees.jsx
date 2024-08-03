@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import MakeApiRequest from "../../../Functions/AxiosApi";
 import config from "../../../Functions/config";
 import HRNav from "../../../components/HR/HR-Navbar/HRNav";
 import HRSidebar from "../../../components/HR/HR-Sidebar/HRSidebar";
 import { useSidebarContext } from "../../../hooks/useSidebarContext";
-import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
+import { FaCirclePlus } from "react-icons/fa6";
 import "jspdf-autotable";
 import { FaSearch } from "react-icons/fa";
 
@@ -14,6 +15,9 @@ function ListEmployees() {
   const { isSidebarCollapsed, dispatch: sidebarDispatch } = useSidebarContext();
   const [toggleleavestatus, setToggleleavestatus] = useState(false);
   const [buttonstatus, setButtonstatus] = useState(true);
+  const navigate = useNavigate();
+  const [togglemodal, setTogglemodal] = useState(false);
+  const [employeeid, setEmployeeid] = useState("");
   const [toggleleavedetails, setToggleleavedetails] = useState(false);
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -21,7 +25,7 @@ function ListEmployees() {
   const [leavedetails, setLeavedetails] = useState("");
   const [showButtons, setShowButtons] = useState(true);
   const [leaveId, setLeaveId] = useState("");
-  const [message1, setMessage1] = useState("");
+  const [message, setMessage] = useState("");
   const [startIndex, setStartIndex] = useState(0);
   const [limit, setLimit] = useState(5);
   const [employee, setEmployee] = useState("");
@@ -33,7 +37,18 @@ function ListEmployees() {
     sidebarDispatch({ type: "TOGGLE_SIDEBAR" });
   };
 
-  
+  const handleAddEmployee = () => {
+      navigate("/company/addemployee");
+  };
+
+  const handleEditEmployee = (EmployeeId) => {
+    navigate(`/company/employeeprofile/${EmployeeId}`);
+  };
+
+  const handleViewEmployee = (EmployeeId) => {
+    navigate(`/company/viewemployeeprofile/${EmployeeId}`);
+  };
+
 
   useEffect(() => {
     loademployees();
@@ -77,7 +92,6 @@ function ListEmployees() {
     setStartIndex(Math.max(0, startIndex - limit));
   };
 
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (employee || startDate || endDate) {
@@ -88,7 +102,7 @@ function ListEmployees() {
 
   useEffect(() => {
     if (startDate === "" && endDate === "" && employee === "") {
-        loademployees();
+      loademployees();
     }
   }, [startDate, endDate, employee]);
 
@@ -99,6 +113,44 @@ function ListEmployees() {
     setEmployee("");
     setStartIndex(0);
     setLimit(5);
+  };
+
+  const handledeletemodal = (EmployeeId) => {
+    setEmployeeid(EmployeeId);
+    setTogglemodal(true);
+  };
+
+  const deleteemployee = () => {
+    const params = {
+      employeeid: employeeid,
+    };
+
+    MakeApiRequest(
+      "delete",
+      `${config.baseUrl}hr/employeeprofile/`,
+      {},
+      params,
+      {}
+    )
+      .then((response) => {
+        console.log(response);
+        setMessage("Employee Deleted Successfully");
+        setTimeout(() => {
+          setAllemployees(allemployees.filter((emp) => emp.id !== employeeid));
+          setMessage("");
+          setTogglemodal(false);
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        if (error.response && error.response.status === 401) {
+          console.log(
+            "Unauthorized access. Token might be expired or invalid."
+          );
+        } else {
+          console.error("Unexpected error occurred:", error);
+        }
+      });
   };
 
   return (
@@ -186,16 +238,17 @@ function ListEmployees() {
                   <div className="-m-1.5 overflow-x-auto">
                     <div className="p-1.5 min-w-full inline-block align-middle">
                       <div className="bg-[rgb(16,23,42)] border border-gray-200 rounded-xl shadow-sm overflow-hidden dark:bg-neutral-800 dark:border-neutral-700">
-                        <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700">
-                          <h2 className="text-xl font-semibold text-white dark:text-neutral-200">
-                            Employees
-                          </h2>
-                          <button
-                            // onClick={handlepasswordeditmodal}
-                            className="px-2 py-2  bg-[rgb(16,23,42)] text-white hover:bg-gray-800 rounded-md border border-gray-700"
+                        <div className="px-6 py-4 flex gap-3  md:flex  md:items-center border-b border-gray-200 dark:border-neutral-700">
+                          <div>
+                            <h2 className="text-xl font-semibold text-white dark:text-neutral-200">
+                              Employees
+                            </h2>
+                          </div>
+                          <div className="mt-1"
+                          onClick={handleAddEmployee}
                           >
-                            Add Employee
-                          </button>
+                            <FaCirclePlus className="text-2xl text-white cursor-pointer hover:text-blue-500" />
+                          </div>
                         </div>
 
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
@@ -213,7 +266,7 @@ function ListEmployees() {
                               </th>
 
                               <th scope="col" className="px-6 py-3 text-start">
-                                <div className="flex items-center gap-x-2 ml-28">
+                                <div className="flex items-center gap-x-2 ml-24">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
                                     Department
                                   </span>
@@ -229,7 +282,7 @@ function ListEmployees() {
                               </th>
 
                               <th scope="col" className="px-11 py-3 text-start">
-                                <div className="flex items-center gap-x-2 mr-6">
+                                <div className="flex items-center gap-x-2 ml-1">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
                                     View
                                   </span>
@@ -237,7 +290,7 @@ function ListEmployees() {
                               </th>
 
                               <th scope="col" className="px-6 py-3 text-start">
-                                <div className="flex items-center gap-x-2 mr-8">
+                                <div className="flex items-center gap-x-2 ml-1">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
                                     Edit
                                   </span>
@@ -246,7 +299,7 @@ function ListEmployees() {
 
                               <th
                                 scope="col"
-                                className="px-6 py-3 text-start ml-1"
+                                className="px-6 py-3 text-start mr-2"
                               >
                                 <div className="flex items-center gap-x-2">
                                   <span className="text-xs font-semibold uppercase tracking-wide text-white dark:text-neutral-200">
@@ -282,7 +335,7 @@ function ListEmployees() {
                                 </td>
 
                                 <td className="h-px whitespace-nowrap">
-                                  <div className="px-6 py-3 ml-28">
+                                  <div className="px-6 py-3 ml-24">
                                     <span className="block text-sm font-semibold text-white dark:text-neutral-200">
                                       {employee.department}
                                     </span>
@@ -298,12 +351,12 @@ function ListEmployees() {
                                 </td>
 
                                 <td className="size-px whitespace-nowrap">
-                                  <div className="px-6 py-3 ml-5">
-                                  <div className="flex items-center gap-x-3">
+                                  <div className="px-6 py-3 ml-7">
+                                    <div className="flex items-center gap-x-3">
                                       <a
-                                        // onClick={() =>
-                                        //   handleleavedetailsmodal(leave.id)
-                                        // }
+                                        onClick={() =>
+                                          handleViewEmployee(employee.id)
+                                        }
                                         className="text-sm text-blue-600 dark:text-neutral-500 cursor-pointer hover:text-blue-800"
                                       >
                                         View
@@ -313,13 +366,13 @@ function ListEmployees() {
                                 </td>
 
                                 <td className="size-px whitespace-nowrap">
-                                  <div className="px-6 py-3 mr-9">
+                                  <div className="px-6 py-3 ml-1">
                                     <div className="flex items-center gap-x-3">
                                       <a
-                                        // onClick={() =>
-                                        //   handleleavedetailsmodal(leave.id)
-                                        // }
-                                        className="text-sm text-amber-500 dark:text-neutral-500 cursor-pointer hover:text-blue-800"
+                                        onClick={() =>
+                                          handleEditEmployee(employee.id)
+                                        }
+                                        className="text-sm text-amber-500 dark:text-neutral-500 cursor-pointer hover:text-amber-800"
                                       >
                                         Edit
                                       </a>
@@ -327,11 +380,11 @@ function ListEmployees() {
                                   </div>
                                 </td>
                                 <td className="size-px whitespace-nowrap">
-                                  <div className="px-3 py-3 ml-3">
+                                  <div className="px-3 py-3 ml-2">
                                     <span
-                                    //   onClick={() =>
-                                    //     handleDownloadPdf(leave.employeeid)
-                                    //   }
+                                      onClick={() =>
+                                        handledeletemodal(employee.id)
+                                      }
                                       className="text-sm text-red-600 dark:text-neutral-500 cursor-pointer  hover:text-red-800"
                                     >
                                       Delete
@@ -412,6 +465,56 @@ function ListEmployees() {
           </div>
         </div>
       </div>
+
+      {togglemodal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-50"
+              aria-hidden="true"
+            ></div>
+            <div className="inline-block w-full max-w-2xl p-8 my-8 overflow-hidden text-left transition-all transform bg-[rgba(41,39,63,255)] rounded-lg shadow-xl dark:bg-neutral-800 dark:border dark:border-neutral-700">
+              <h3 className="text-lg font-medium text-white dark:text-neutral-200">
+                Delete Employee
+              </h3>
+              <div className="mt-4">
+                <p className="text-sm text-white dark:text-neutral-400">
+                  Are you sure you want to Delete this Employee ?. This action
+                  cannot be undone.
+                </p>
+              </div>
+
+              <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="justify-center inline-flex items-center rounded-full py-3 px-4 text-sm font-medium bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  onClick={deleteemployee}
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTogglemodal(false);
+                  }}
+                  className="mt-3 sm:mt-0 sm:mr-3 justify-center inline-flex items-center rounded-full py-3 px-4 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-neutral-800 dark:border dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white"
+                >
+                  Cancel
+                </button>
+              </div>
+              {message && (
+                <div
+                  className="mt-2 bg-teal-100 border border-teal-200 text-sm text-teal-800 rounded-lg p-4 dark:bg-teal-800/10 dark:border-teal-900 dark:text-teal-500"
+                  role="alert"
+                >
+                  <span className="font-bold">Success:</span> Employee Deleted
+                  successfully.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

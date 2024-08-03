@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.hashers import check_password, make_password
 from rest_framework.views import APIView
+from datetime import date, datetime
 from .serializers import EmployeeSerializer
 from .serializers import NotificationSerializer
 from .serializers import LeaveRequestSerializer
@@ -25,18 +26,48 @@ class CreateEmployee(APIView):
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def get(self,request):
+    def get(self, request):
         limit = int(request.query_params.get('limit', 5))
         start_index = int(request.query_params.get('startIndex', 0))
         employee_info = request.query_params.get('employeeinfo', '').strip()
         start_date = request.query_params.get('start')
         end_date = request.query_params.get('end')
 
-        employee=Employee.objects.all().order_by('-register_date')
-        employee=employee[start_index:start_index+limit]
-        serializer=EmployeeSerializer(employee,many=True)
+        # If only start_date is provided, set end_date to today's date
+        if start_date and not end_date:
+            end_date = date.today().isoformat()
+
+        filters = Q()
+        if employee_info:
+            filters &= (
+                Q(employeeid__icontains=employee_info) |
+                Q(name__icontains=employee_info) |
+                Q(position__icontains=employee_info) |
+                Q(department__icontains=employee_info)
+            )
+
+        if start_date:
+            try:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({'error': 'Invalid start date format. Use YYYY-MM-DD.'}, status=400)
+            
+            try:
+                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({'error': 'Invalid end date format. Use YYYY-MM-DD.'}, status=400)
+            
+            # Adjust end_date to include the whole day
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+            filters &= Q(register_date__range=[start_date, end_date])
+
+        employees = Employee.objects.filter(filters).order_by('-register_date')
+        employees = employees[start_index:start_index + limit]
+
+        serializer = EmployeeSerializer(employees, many=True)
         return Response(serializer.data)
-    
+
+
 class EmployeeProfile(APIView):
 
     def get(self, request):
@@ -69,7 +100,22 @@ class EmployeeProfile(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def delete(self, request):
+        print(request.data)
+        employeeid = int(request.query_params.get('employeeid'))
+        try:
+            employee = Employee.objects.get(id=employeeid)
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee not found'}, status=404)
 
+        employee.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class AllEmployees(APIView):
+    def get(self,request):  
+        employee=Employee.objects.all()
+        serializer=EmployeeSerializer(employee,many=True)
+        return Response(serializer.data)
 
 class PasswordChange(APIView):
 

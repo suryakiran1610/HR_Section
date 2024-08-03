@@ -7,6 +7,13 @@ class user(AbstractUser):
     user_type=models.CharField(max_length=30,null=True,blank=True)
 
 class login(models.Model):
+    id=models.IntegerField(primary_key=True)
+    email = models.CharField(unique=True,max_length=225,null=True,blank=True)
+    first_name = models.CharField(max_length=225,null=True,blank=True)
+    last_name = models.CharField(max_length=225,null=True,blank=True)
+    is_active = models.BooleanField(null=True,blank=True)
+    is_staff = models.BooleanField(null=True,blank=True)
+    date_joined= models.DateTimeField(null=True,blank=True)
     status = models.CharField(max_length=225,null=True,blank=True)
     username = models.CharField(max_length=255,null=True,blank=True)
     password = models.CharField(max_length=255,null=True,blank=True)
