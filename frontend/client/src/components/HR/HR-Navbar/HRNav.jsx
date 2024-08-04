@@ -181,7 +181,7 @@ const HRNav = () => {
                 </Link>
                 <button
                   type="button"
-                  className="w-[2.375rem] ml-6 h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600 sm:hidden"
+                  className="w-[2.375rem] ml-6 h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full text-white hover:bg-white/20 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-1 focus:ring-gray-600 md:hidden"
                   ref={zapButtonRef}
                   onClick={toggleSidebar}
                 >
