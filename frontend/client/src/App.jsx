@@ -6,6 +6,8 @@ import ListEmployees from "./pages/HR/Employees/ListEmployees";
 import EditEmployee from "./pages/HR/Employees/EditEmployee";
 import AddEmployee from "./pages/HR/Employees/AddEmployee";
 import ViewEmployee from "./pages/HR/Employees/ViewEmployee";
+import Tasks from "./pages/HR/TaskManagement/Tasks";
+import TaskDetails from "./pages/HR/TaskManagement/TaskDetails";
 import "flowbite";
 import "./App.css";
 
@@ -21,6 +23,8 @@ function App() {
           <Route path='employeeprofile/:id' element={<EditEmployee/>}/>
           <Route path="addemployee" element={<AddEmployee />} />
           <Route path='viewemployeeprofile/:id' element={<ViewEmployee/>}/>
+          <Route path="task" element={<Tasks />}/>
+          <Route path='viewtaskdetails/:id' element={<TaskDetails/>}/>
         </Route>
       </Routes>
     </>

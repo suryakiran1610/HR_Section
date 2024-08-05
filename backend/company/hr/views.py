@@ -7,9 +7,13 @@ from datetime import date, datetime
 from .serializers import EmployeeSerializer
 from .serializers import NotificationSerializer
 from .serializers import LeaveRequestSerializer
+from .serializers import TaskSerializer
+from .serializers import TaskAssignSerializer
 from .models import Employee
 from .models import LeaveRequest
 from .models import Notification
+from .models import Task
+from .models import Task_Assign
 from django.db.models import Count, Q
 from datetime import date
 from django.utils import timezone
@@ -338,4 +342,81 @@ class Dashboard_Data(APIView):
         }
         
         return Response(data)
+
+class CreateTask(APIView):
+    def post(self, request):
+        serializer = TaskSerializer(data=request.data)
+        print(request.data)
+
+        if serializer.is_valid():
+            task = serializer.save()
+            response_serializer = TaskSerializer(task)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def get(self, request):
+        limit = int(request.query_params.get('limit', 5))
+        start_index = int(request.query_params.get('startIndex', 0))
+        taskinfo = request.query_params.get('taskinfo', '').strip()
+        start_date = request.query_params.get('start')
+        end_date = request.query_params.get('end')
+
+        # If only start_date is provided, set end_date to today's date
+        if start_date and not end_date:
+            end_date = date.today().isoformat()
+
+        filters = Q()
+
+        if taskinfo:
+            filters &= (
+                Q(task_id__icontains=taskinfo) |
+                Q(task_name__icontains=taskinfo) |
+                Q(employeeid__employeeid__icontains=taskinfo) |
+                Q(employeeid__name__icontains=taskinfo) |
+                Q(task_assign__employeeid__employeeid__icontains=taskinfo) |
+                Q(task_assign__task_priority__icontains=taskinfo) |
+                Q(task_assign__employeeid__name__icontains=taskinfo)
+            )
+
+        if start_date:
+            try:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({'error': 'Invalid start date format. Use YYYY-MM-DD.'}, status=400)
+            
+            try:
+                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                return Response({'error': 'Invalid end date format. Use YYYY-MM-DD.'}, status=400)
+            
+            # Adjust end_date to include the whole day
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+            filters &= Q(task_created_on__range=[start_date, end_date])
+
+        tasks = Task.objects.filter(filters).distinct().order_by('-task_created_on')
+        tasks = tasks[start_index:start_index + limit]
+
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+
+class AssignTask(APIView):
+    def post(self, request):
+        serializer = TaskAssignSerializer(data=request.data)
+        print(request.data)
+
+        if serializer.is_valid():
+            task_assign = serializer.save()
+            response_serializer = TaskAssignSerializer(task_assign)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    def get(self, request):
+        taskid = request.query_params.get('taskid')
+        assigned_task = Task_Assign.objects.filter(task_id=taskid)
+        serializer = TaskAssignSerializer(assigned_task, many=True)
+        return Response(serializer.data)
+
 

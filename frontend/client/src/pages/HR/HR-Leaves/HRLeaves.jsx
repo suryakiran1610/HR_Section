@@ -601,7 +601,7 @@ function HRLeaves() {
                                 </td>
 
                                 <td className="size-px whitespace-nowrap">
-                                  <div className="px-6 py-3 ml-3">
+                                  <div className="px-6 py-3 ml-1">
                                     <span className="block text-sm font-semibold text-white dark:text-neutral-200">
                                       {leave.enddate}
                                     </span>

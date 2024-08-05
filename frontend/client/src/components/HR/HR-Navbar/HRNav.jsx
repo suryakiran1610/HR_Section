@@ -392,9 +392,9 @@ const HRNav = () => {
                 Employees
               </Link>
               <Link
-                to="/admin/plan-pricing"
+                to="/company/task"
                 className={`flex items-center gap-x-3 py-2 px-4 text-white hover:bg-blue-800 rounded-lg ${
-                  location.pathname === "/admin/plan-pricing"
+                  location.pathname === "/company/task"
                     ? "bg-blue-800"
                     : ""
                 }`}

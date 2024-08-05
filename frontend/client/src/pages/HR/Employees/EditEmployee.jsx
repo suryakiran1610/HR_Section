@@ -34,7 +34,7 @@ function EditEmployee() {
   };
 
   useEffect(() => {
-    MakeApiRequest("get", `${config.baseUrl}hr/createemployee/`, {}, {}, {})
+    MakeApiRequest("get", `${config.baseUrl}hr/allemployees/`, {}, {}, {})
       .then((response) => {
         console.log("allemployee", response);
         setUsers(response);

@@ -51,7 +51,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False,null=True,blank=True)
 
 class Task(models.Model):
-    task_id=models.CharField(max_length=255,null=True,blank=True)
+    task_id=models.CharField(unique=True,max_length=255,null=True,blank=True)
     task_name=models.CharField(max_length=255,null=True,blank=True)
     task_description=models.TextField(max_length=255,null=True,blank=True)
     task_created_on=models.DateField(auto_now_add=True,null=True,blank=True)
@@ -63,7 +63,7 @@ class Task_Assign(models.Model):
     employeeid= models.ForeignKey(Employee, on_delete=models.CASCADE, blank=True, null=True)
     task_priority=models.CharField(max_length=255,null=True,blank=True)
     task_assign_date=models.DateField(auto_now_add=True,null=True,blank=True)
-    task_status=models.CharField(max_length=255,null=True,blank=True)
+    task_status=models.CharField(max_length=255,default='not started',null=True,blank=True)
     task_description=models.TextField(max_length=255,null=True,blank=True)
 
 

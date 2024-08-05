@@ -58,7 +58,7 @@ const HRSidebar = ({ sidebarToggle }) => {
     },
     {
       name: "Task",
-      link: "/admin/plan-pricing",
+      link: "/company/task",
       icon: FaTasks,
     },
   ];
