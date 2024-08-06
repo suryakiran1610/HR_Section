@@ -19,5 +19,7 @@ urlpatterns = [
     path('dashboard_data/',views.Dashboard_Data.as_view(),name="dashboard_data"),
     path('assigntask/',views.AssignTask.as_view(),name="assigntask"),
     path('createtask/',views.CreateTask.as_view(),name="createtask"),
+    path('employeeassignedtask/',views.Employee_Assigned_Task.as_view(),name="employeeassignedtask"),
+
     
 ]
