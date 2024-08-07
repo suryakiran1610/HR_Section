@@ -415,21 +415,35 @@ class AssignTask(APIView):
     
     def get(self, request):
         taskid = request.query_params.get('taskid')
+
         assigned_task = Task_Assign.objects.filter(task_id=taskid)
-        serializer = TaskAssignSerializer(assigned_task, many=True)
-        return Response(serializer.data)
+        if assigned_task.exists():
+            serializer = TaskAssignSerializer(assigned_task, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        task=Task.objects.filter(id=taskid)
+        if task.exists():
+            serializer=TaskSerializer(task,many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response({'detail': 'No tasks found for the given task ID.'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class Employee_Assigned_Task(APIView):
     def get(self, request):
         user_id = request.query_params.get('user_id')
+        limit = int(request.query_params.get('limit', 5))
+        start_index = int(request.query_params.get('startIndex', 0))
 
         tasks = Task.objects.filter(employeeid=user_id)
+        tasks = tasks[start_index:start_index + limit]
         if tasks.exists():
             serializer = TaskSerializer(tasks, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         assigned_tasks = Task_Assign.objects.filter(employeeid=user_id)
+        assigned_tasks = assigned_tasks[start_index:start_index + limit]
         if assigned_tasks.exists():
             serializer = TaskAssignSerializer(assigned_tasks, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)

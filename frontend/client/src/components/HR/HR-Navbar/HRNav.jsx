@@ -244,7 +244,7 @@ const HRNav = () => {
                                       {notification.message} by{" "}
                                       {notification.employeeid.name}
                                     </p>
-                                    <p className="text-xs text-gray-400">
+                                    <p className="text-xs">
                                       {notification.date}
                                     </p>
                                   </div>

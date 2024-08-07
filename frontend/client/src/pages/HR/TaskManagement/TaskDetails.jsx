@@ -12,6 +12,8 @@ function TaskDetails() {
   const [task, setTask] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const [isTaskModel, setIsTaskModel] = useState(false);
+
 
   const sidebarToggle = () => {
     sidebarDispatch({ type: "TOGGLE_SIDEBAR" });
@@ -27,6 +29,13 @@ function TaskDetails() {
       .then((response) => {
         console.log("tasksdetails", response);
         setTask(response);
+        if (response.length > 0) {
+          if (response[0].task_created_on) {
+            setIsTaskModel(true);
+          } else {
+            setIsTaskModel(false);
+          }
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -62,6 +71,29 @@ function TaskDetails() {
                 </h2>
                 <div className="flex flex-wrap justify-between mb-6">
                   <div className="bg-[rgb(16,23,42)] p-5 flex-1 ml-2 mb-4 rounded-lg">
+                  {isTaskModel ? (
+                    <>
+                      <h3 className="text-xl font-semibold text-white">
+                      Task Name:{" "}
+                      <span className="text-base ml-2">
+                        {task[0]?.task_name}
+                      </span>
+                    </h3>
+                    <p className="text-white mt-1 text-xl font-semibold">
+                      Task ID:{" "}
+                      <span className="text-base ml-2">
+                        {task[0]?.task_id}
+                      </span>
+                    </p>
+                    <p className="text-white mt-1 text-xl font-semibold">
+                      Description:{" "}
+                      <span className="text-base ml-2">
+                        {task[0]?.task_description}
+                      </span>
+                    </p>
+                    </>
+                  ):(
+                    <>
                     <h3 className="text-xl font-semibold text-white">
                       Task Name:{" "}
                       <span className="text-base ml-2">
@@ -86,8 +118,39 @@ function TaskDetails() {
                         {task[0]?.task_priority}
                       </span>
                     </p>
+                    </>
+                  )}
                   </div>
-
+                  {isTaskModel ? (
+                    <div
+                    className="bg-[rgb(16,23,42)] p-3 flex-1 ml-3 mb-4 rounded-lg cursor-pointer transition-transform transform hover:scale-105"
+                    onClick={() =>
+                      handleViewEmployee(task[0]?.task?.employee?.id)
+                    }
+                  >
+                    <div className="flex items-center mb-4 mt-5 cursor-pointer">
+                      <img
+                        src={`${config.imagebaseurl}${task[0]?.employee?.profileimage}`}
+                        alt={task[0]?.employee?.name}
+                        className="w-16 h-16 rounded-full object-cover ml-4 mt-1"
+                        onClick={() =>
+                          handleViewEmployee(task[0]?.task?.employee?.id)
+                        }
+                      />
+                      <div className="ml-7">
+                        <h3 className="text-xl font-semibold text-white mt-1">
+                          Created By: {task[0]?.employee?.name}
+                        </h3>
+                        <p className="text-white mt-1">
+                          Employee ID: {task[0]?.employee?.employeeid}
+                        </p>
+                        <p className="text-white mt-1">
+                          Created On: {task[0]?.task_created_on}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  ):(
                   <div
                     className="bg-[rgb(16,23,42)] p-3 flex-1 ml-3 mb-4 rounded-lg cursor-pointer transition-transform transform hover:scale-105"
                     onClick={() =>
@@ -116,10 +179,12 @@ function TaskDetails() {
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-white">
                   Assigned Employees
                 </h3>
+                {!isTaskModel &&(
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {task.map((assignedTask) => (
                     <div
@@ -167,6 +232,7 @@ function TaskDetails() {
                     </div>
                   ))}
                 </div>
+                )}
               </div>
             </div>
           </div>

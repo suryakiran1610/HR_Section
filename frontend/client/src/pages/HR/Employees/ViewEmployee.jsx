@@ -15,6 +15,10 @@ function ViewEmployee() {
   const [task, setTask] = useState([]);
   const [isTaskModel, setIsTaskModel] = useState(false);
   const navigate = useNavigate();
+  const [startIndex, setStartIndex] = useState(0);
+  const [limit, setLimit] = useState(5);
+  const [buttonstatus, setButtonstatus] = useState(true);
+
 
 
   const sidebarToggle = () => {
@@ -51,7 +55,11 @@ function ViewEmployee() {
   }, [id]);
 
   useEffect(() => {
-    const params = { user_id: id };
+    const params = { 
+      user_id: id,
+      limit: limit,
+      startIndex: startIndex
+    };
     MakeApiRequest(
       "get",
       `${config.baseUrl}hr/employeeassignedtask/`,
@@ -61,6 +69,7 @@ function ViewEmployee() {
     )
       .then((response) => {
         console.log("employee_assigned_task", response);
+        
         if (response.length > 0) {
           if (response[0].task_created_on) {
             setIsTaskModel(true);
@@ -68,6 +77,11 @@ function ViewEmployee() {
             setIsTaskModel(false);
           }
           setTask(response);
+        }
+        if (response.length < 5) {
+          setButtonstatus(false);
+        } else {
+          setButtonstatus(true);
         }
       })
       .catch((error) => {
@@ -80,7 +94,15 @@ function ViewEmployee() {
           console.error("Unexpected error occurred:", error);
         }
       });
-  }, [id]);
+  }, [limit, startIndex]);
+
+  const handleLoadMore = () => {
+    setStartIndex(startIndex + limit);
+  };
+
+  const handleLoadPrevious = () => {
+    setStartIndex(Math.max(0, startIndex - limit));
+  };
 
   return (
     <div className="bg-[rgb(16,23,42)]">
@@ -491,7 +513,7 @@ function ViewEmployee() {
                         <div>
                           <p className="text-sm text-white dark:text-neutral-400">
                             <span className="font-semibold text-white dark:text-neutral-200">
-                              {/* {task.length} */}
+                              {task.length}
                             </span>{" "}
                             results
                           </p>
@@ -501,8 +523,8 @@ function ViewEmployee() {
                           <div className="inline-flex gap-x-2">
                             <button
                               type="button"
-                              // disabled={startIndex === 0}
-                              // onClick={handleLoadPrevious}
+                              disabled={startIndex === 0}
+                              onClick={handleLoadPrevious}
                               className="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-[rgb(16,23,42)] text-white shadow-sm hover:bg-gray-800 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
                             >
                               <svg
@@ -524,8 +546,8 @@ function ViewEmployee() {
 
                             <button
                               type="button"
-                              // disabled={!buttonstatus}
-                              // onClick={handleLoadMore}
+                              disabled={!buttonstatus}
+                              onClick={handleLoadMore}
                               className="py-1.5 px-2 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-[rgb(16,23,42)] hover:bg-gray-800 text-white shadow-sm  disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
                             >
                               Next
